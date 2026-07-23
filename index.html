@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEXXX PLAY - Memory Match</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ==========================================
+           CSS: ESTILO ERÓTICO NEÓN (Noir)
+           ========================================== */
+        * { padding: 0; margin: 0; box-sizing: border-box; }
+
+        body {
+            background: radial-gradient(circle, #1a0210 0%, #050505 100%);
+            color: #fff;
+            font-family: 'Orbitron', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .head {
+            width: 90%; max-width: 600px;
+            margin: 20px auto; padding: 15px;
+            background: rgba(255, 0, 127, 0.05);
+            border: 2px solid #ff007f;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(255, 0, 127, 0.3);
+        }
+
+        .head h2 {
+            font-size: 1.8rem; letter-spacing: 5px;
+            text-shadow: 0 0 10px #ff007f, 0 0 20px #ff007f;
+        }
+
+        .score { color: #00f3ff; text-shadow: 0 0 8px #00f3ff; margin-top: 5px; font-size: 1.2rem; }
+
+        /* Grilla del juego */
+        .container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            max-width: 800px;
+            padding: 20px;
+        }
+
+        /* Estructura de la carta 3D */
+        .cell {
+            width: 100px; height: 140px;
+            perspective: 1000px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .card-inner {
+            position: relative; width: 100%; height: 100%;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+
+        /* Clase para girar la carta */
+        .cell.flipped .card-inner { transform: rotateY(180deg); }
+        
+        /* Cuando ya se encontró la pareja */
+        .cell.matched { pointer-events: none; }
+        .cell.matched .card-inner { box-shadow: 0 0 20px #00f3ff; border-radius: 10px; }
+
+        .front, .back {
+            position: absolute; width: 100%; height: 100%;
+            backface-visibility: hidden;
+            border-radius: 10px; border: 2px solid;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        /* Parte trasera: Color sólido con "?" */
+        .back {
+            background: #2a001a; border-color: #ff007f;
+            color: #ff007f; font-size: 2.5rem;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+        }
+
+        /* Parte frontal: La imagen */
+        .front {
+            background: #000; border-color: #00f3ff;
+            transform: rotateY(180deg);
+            overflow: hidden;
+        }
+
+        .front img {
+            width: 100%; height: 100%; object-fit: cover;
+        }
+
+        /* Ajustes para PC */
+        @media (min-width: 600px) {
+            .container { grid-template-columns: repeat(4, 1fr); gap: 20px; }
+            .cell { width: 130px; height: 180px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="head">
+        <h2>SEXXX PLAY</h2>
+        <div class="score">Score: <span>0</span></div>
+    </div>
+
+    <div class="container"></div>
+
+    <script>
+        /* ==========================================
+           JAVASCRIPT: LÓGICA DE JUEGO Y SCORE
+           ========================================== */
+        const container = document.querySelector('.container');
+        const scoreElement = document.querySelector('.score span');
+        
+        // Datos de las imágenes (nombres de tus archivos)
+        const items = [
+            { id: 1, img: 'imagen1.gpj.jpg' },
+            { id: 2, img: 'images (2).jpg' },
+            { id: 3, img: 'imagen 3.jpg' },
+            { id: 4, img: 'image 4.jpg' },
+            { id: 5, img: 'images 5.jpg' },
+            { id: 6, img: 'imagen6.jpg' }
+        ];
+
+        // Duplicamos los items para crear parejas y los mezclamos
+        let cardsData = [...items, ...items];
+        cardsData.sort(() => Math.random() - 0.5);
+
+        let flippedCards = [];
+        let matchedCount = 0;
+        let score = 0;
+
+        // Crear las cartas en el HTML
+        function createBoard() {
+            cardsData.forEach((data) => {
+                const card = document.createElement('div');
+                card.classList.add('cell');
+                card.dataset.index = data.id; // IMPORTANTE: El ID para comparar
+                
+                card.innerHTML = `
+                    <div class="card-inner">
+                        <div class="back">?</div>
+                        <div class="front">
+                            <img src="css/img/${data.img}" alt="img">
+                        </div>
+                    </div>
+                `;
+                
+                card.addEventListener('click', flipCard);
+                container.appendChild(card);
+            });
+
+            // Truco inicial: Mostrar todas las imágenes 2 segundos y luego ocultarlas
+            setTimeout(() => {
+                document.querySelectorAll('.cell').forEach(c => c.classList.add('flipped'));
+                setTimeout(() => {
+                    document.querySelectorAll('.cell').forEach(c => c.classList.remove('flipped'));
+                }, 2000);
+            }, 500);
+        }
+
+        function flipCard() {
+            // Evitar girar más de 2 o la misma carta
+            if (flippedCards.length === 2 || this.classList.contains('flipped')) return;
+
+            this.classList.add('flipped');
+            flippedCards.push(this);
+
+            if (flippedCards.length === 2) {
+                checkMatch();
+            }
+        }
+
+        function checkMatch() {
+            const [card1, card2] = flippedCards;
+
+            if (card1.dataset.index === card2.dataset.index) {
+                // ¡Hay Match!
+                card1.classList.add('matched');
+                card2.classList.add('matched');
+                
+                // Sumar Score
+                score += 1;
+                scoreElement.innerHTML = score;
+                
+                flippedCards = [];
+            } else {
+                // No hay Match: Esperar 1 segundo y voltear de nuevo
+                setTimeout(() => {
+                    card1.classList.remove('flipped');
+                    card2.classList.remove('flipped');
+                    flippedCards = [];
+                }, 1000);
+            }
+        }
+
+        createBoard();
+    </script>
+</body>
+</html>
