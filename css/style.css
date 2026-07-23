@@ -1,0 +1,168 @@
+/* ==========================================
+   1. CONFIGURACIÓN DE PANTALLA Y FONDO
+   ========================================== */
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+body {
+  /* Fondo oscuro con un degradado sutil para dar profundidad */
+  background: radial-gradient(circle at center, #1a0210 0%, #050505 100%);
+  color: #fff;
+  font-family: 'Orbitron', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-x: hidden;
+}
+
+/* ==========================================
+   2. ENCABEZADO (Score y Título Neón)
+   ========================================== */
+.head {
+  width: 90%;
+  max-width: 800px;
+  margin-top: 20px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid #ff007f; /* Borde rosa neón */
+  border-radius: 15px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 0 20px rgba(255, 0, 127, 0.2);
+}
+
+.head h2 {
+  font-size: 2.2rem;
+  color: #fff;
+  letter-spacing: 5px;
+  text-shadow: 0 0 10px #ff007f, 0 0 20px #ff007f; /* Efecto brillo */
+  margin-bottom: 5px;
+}
+
+.score {
+  font-size: 1.2rem;
+  color: #00f3ff; /* Azul cian para el score */
+  text-shadow: 0 0 8px #00f3ff;
+}
+
+/* ==========================================
+   3. TABLERO (Grid de Cartas)
+   ========================================== */
+.container {
+  width: 100%;
+  max-width: 900px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3 columnas en móviles */
+  gap: 15px;
+  padding: 20px;
+  margin: 20px auto;
+}
+
+/* ==========================================
+   4. LA CARTA (Efecto 3D)
+   ========================================== */
+.cell {
+  height: 160px; /* Altura para móvil */
+  perspective: 1000px; /* Activa la profundidad 3D */
+  cursor: pointer;
+}
+
+.card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d; /* Permite que las capas vivan en 3D */
+}
+
+/* --- CLASES DE ESTADO (Se activan con JS) --- */
+/* Cuando la carta gira */
+.cell.flipped .card-inner {
+  transform: rotateY(180deg);
+}
+
+/* Cuando la pareja es correcta */
+.cell.matched .card-inner {
+  transform: rotateY(180deg);
+  box-shadow: 0 0 25px #00f3ff; /* Brillo azul al ganar */
+  border-radius: 10px;
+}
+
+/* ==========================================
+   5. CARAS DE LA CARTA (Front y Back)
+   ========================================== */
+.front, .back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  backface-visibility: hidden; /* Oculta la cara que está detrás */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 2px solid;
+}
+
+/* CARA DE ATRÁS: Lo que se ve al iniciar (?) */
+.back {
+  background: linear-gradient(45deg, #1a001a, #4d0026);
+  border-color: #ff007f;
+  color: #ff007f;
+  font-size: 3rem;
+  text-shadow: 0 0 10px #ff007f;
+  box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
+}
+
+.back:hover {
+  background: linear-gradient(45deg, #2a002a, #6d0036);
+  box-shadow: 0 0 15px rgba(255, 0, 127, 0.4);
+}
+
+/* CARA FRONTAL: Donde sale la imagen sensual */
+.front {
+  background-color: #000;
+  border-color: #00f3ff;
+  transform: rotateY(180deg); /* La pre-giramos para la animación */
+  overflow: hidden;
+}
+
+.front img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Esto hace que la imagen rellene la carta sin deformarse */
+  filter: brightness(0.9) contrast(1.1); /* Toque visual erótico */
+}
+
+/* ==========================================
+   6. RESPONSIVE (Ajustes para PC)
+   ========================================== */
+@media screen and (min-width: 770px) {
+  .container {
+    grid-template-columns: repeat(4, 1fr); /* 4 columnas en PC */
+    gap: 20px;
+  }
+
+  .cell {
+    height: 220px; /* Cartas más grandes en PC */
+  }
+
+  .head h2 {
+    font-size: 3rem;
+  }
+}
+
+/* Toque extra: Animación de entrada para el tablero */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.container {
+  animation: fadeIn 1s ease-out;
+}
